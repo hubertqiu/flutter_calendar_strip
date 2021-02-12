@@ -40,47 +40,28 @@ class CalendarStrip extends StatefulWidget {
     this.leftIcon,
   });
 
-  State<CalendarStrip> createState() =>
-      CalendarStripState(selectedDate, startDate, endDate);
+  State<CalendarStrip> createState() => CalendarStripState(selectedDate, startDate, endDate);
 }
 
-class CalendarStripState extends State<CalendarStrip>
-    with TickerProviderStateMixin {
-  DateTime currentDate = DateTime.utc(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day);
+class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMixin {
+  DateTime currentDate = DateTime.utc(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime selectedDate;
   String monthLabel;
   bool inBetweenMonths = false;
   DateTime rowStartingDate;
   double opacity = 0.0;
   DateTime lastDayOfMonth;
-  TextStyle monthLabelStyle = TextStyle(
-      fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87);
-  TextStyle selectedDateStyle =
-      TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white);
+  TextStyle monthLabelStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black38);
+  TextStyle selectedDateStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white);
   bool isOnEndingWeek = false, isOnStartingWeek = false;
   bool doesDateRangeExists = false;
   DateTime today;
 
-  List<String> monthLabels = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
+  List<String> monthLabels = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 
-  List<String> dayLabels = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
+  List<String> dayLabels = ["一", "二", "三", "四", "五", "六", "日"];
 
-  CalendarStripState(
-      DateTime selectedDate, DateTime startDate, DateTime endDate) {
+  CalendarStripState(DateTime selectedDate, DateTime startDate, DateTime endDate) {
     today = getDateOnly(DateTime.now());
     lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
     runPresetsAndExceptions(selectedDate, startDate, endDate);
@@ -88,13 +69,9 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   runPresetsAndExceptions(selectedDate, startDate, endDate) {
-    if ((startDate == null && endDate != null) ||
-        (startDate != null && endDate == null)) {
-      throw Exception(
-          "Both 'startDate' and 'endDate' are mandatory to specify range");
-    } else if (selectedDate != null &&
-        (isDateBefore(selectedDate, startDate) ||
-            isDateAfter(selectedDate, endDate))) {
+    if ((startDate == null && endDate != null) || (startDate != null && endDate == null)) {
+      throw Exception("Both 'startDate' and 'endDate' are mandatory to specify range");
+    } else if (selectedDate != null && (isDateBefore(selectedDate, startDate) || isDateAfter(selectedDate, endDate))) {
       throw Exception("Selected Date is out of range from start and end dates");
     } else if (startDate == null && startDate == null) {
       doesDateRangeExists = false;
@@ -118,12 +95,13 @@ class CalendarStripState extends State<CalendarStrip>
     super.didUpdateWidget(oldWidget);
     if (widget.selectedDate != oldWidget.selectedDate &&
         widget.selectedDate != null &&
-        (isDateBefore(widget.selectedDate, widget.startDate) ||
-            isDateAfter(widget.selectedDate, widget.endDate))) {
+        (isDateBefore(widget.selectedDate, widget.startDate) || isDateAfter(widget.selectedDate, widget.endDate))) {
       throw Exception("Selected Date is out of range from start and end dates");
     } else {
       setState(() {
-        selectedDate = getDateOnly(widget.selectedDate);
+        if (widget.selectedDate != null) {
+          selectedDate = getDateOnly(widget.selectedDate);
+        }
       });
     }
   }
@@ -131,12 +109,9 @@ class CalendarStripState extends State<CalendarStrip>
   @override
   void initState() {
     super.initState();
-    int subtractDuration = widget.weekStartsOnSunday == true
-        ? currentDate.weekday
-        : currentDate.weekday - 1;
-    rowStartingDate = rowStartingDate != null
-        ? rowStartingDate
-        : currentDate.subtract(Duration(days: subtractDuration));
+    int subtractDuration = widget.weekStartsOnSunday == true ? currentDate.weekday : currentDate.weekday - 1;
+    rowStartingDate =
+        rowStartingDate != null ? rowStartingDate : currentDate.subtract(Duration(days: subtractDuration));
     var dateRange = calculateDateRange(null);
 
     setState(() {
@@ -146,9 +121,7 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   int getLastDayOfMonth(rowStartingDay) {
-    return DateUtils.getLastDayOfMonth(
-            currentDate.add(Duration(days: rowStartingDay)))
-        .day;
+    return DateUtils.getLastDayOfMonth(currentDate.add(Duration(days: rowStartingDay))).day;
   }
 
   String getMonthName(
@@ -158,16 +131,15 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   String getMonthLabel() {
-    DateTime startingDayObj = rowStartingDate,
-        endingDayObj = rowStartingDate.add(Duration(days: 6));
+    DateTime startingDayObj = rowStartingDate, endingDayObj = rowStartingDate.add(Duration(days: 6));
     String label = "";
     if (startingDayObj.month == endingDayObj.month) {
-      label = "${getMonthName(startingDayObj)} ${startingDayObj.year}";
+      label = "${startingDayObj.year}年 ${getMonthName(startingDayObj)}";
     } else {
-      var startingDayYear =
-          "${startingDayObj.year == endingDayObj.year ? "" : startingDayObj.year}";
-      label =
-          "${getMonthName(startingDayObj)} $startingDayYear / ${getMonthName(endingDayObj)} ${endingDayObj.year}";
+      var startingDayYear = startingDayObj.month == endingDayObj.month && startingDayObj.year == endingDayObj.year
+          ? ""
+          : "${startingDayObj.year}年 ${getMonthName(startingDayObj)} / ";
+      label = "$startingDayYear${endingDayObj.year}年 ${getMonthName(endingDayObj)}";
     }
     return label;
   }
@@ -206,21 +178,16 @@ class CalendarStripState extends State<CalendarStrip>
       DateTime _nextRowStartingDate;
       DateTime weekStartingDate, weekEndingDate;
       if (mode != null) {
-        _nextRowStartingDate = mode == "PREV"
-            ? rowStartingDate.subtract(Duration(days: 7))
-            : rowStartingDate.add(Duration(days: 7));
+        _nextRowStartingDate =
+            mode == "PREV" ? rowStartingDate.subtract(Duration(days: 7)) : rowStartingDate.add(Duration(days: 7));
       } else {
         _nextRowStartingDate = rowStartingDate;
       }
       weekStartingDate = getDateOnly(_nextRowStartingDate);
       weekEndingDate = getDateOnly(_nextRowStartingDate.add(Duration(days: 6)));
-      bool isStartingWeekOnRange =
-          isDateAfter(widget.startDate, weekStartingDate);
+      bool isStartingWeekOnRange = isDateAfter(widget.startDate, weekStartingDate);
       bool isEndingWeekOnRange = isDateBefore(widget.endDate, weekEndingDate);
-      return {
-        "isEndingWeekOnRange": isEndingWeekOnRange,
-        "isStartingWeekOnRange": isStartingWeekOnRange
-      };
+      return {"isEndingWeekOnRange": isEndingWeekOnRange, "isStartingWeekOnRange": isStartingWeekOnRange};
     } else {
       return {"isEndingWeekOnRange": false, "isStartingWeekOnRange": false};
     }
@@ -252,8 +219,7 @@ class CalendarStripState extends State<CalendarStrip>
         selectedDate = date;
         widget.onDateSelected(date);
       });
-    } else if (!isDateBefore(date, widget.startDate) &&
-        !isDateAfter(date, widget.endDate)) {
+    } else if (!isDateBefore(date, widget.startDate) && !isDateAfter(date, widget.endDate)) {
       setState(() {
         selectedDate = date;
         widget.onDateSelected(date);
@@ -272,22 +238,27 @@ class CalendarStripState extends State<CalendarStrip>
     if (widget.monthNameWidget != null) {
       return widget.monthNameWidget(monthLabel);
     }
-    return Container(
-        child: Text(monthLabel, style: monthLabelStyle),
-        padding: EdgeInsets.only(top: 7, bottom: 3));
+    return Container(child: Text(monthLabel, style: monthLabelStyle), padding: EdgeInsets.only(top: 7, bottom: 3));
   }
 
   rightIconWidget() {
     if (!isOnEndingWeek) {
-      return InkWell(
-        child: widget.rightIcon ??
-            Icon(
-              CupertinoIcons.right_chevron,
-              size: 30,
-              color: nullOrDefault(widget.iconColor, Colors.black),
-            ),
+      return GestureDetector(
+        child: Container(
+          width: 50,
+          height: 72,
+          color: Colors.white, // 底色
+          child: Center(
+            child: widget.rightIcon ??
+                Icon(
+                  CupertinoIcons.right_chevron,
+                  size: 28,
+                  color: nullOrDefault(widget.iconColor, Colors.black),
+                ),
+          ),
+        ),
         onTap: onNextRow,
-        splashColor: Colors.black26,
+        // splashColor: Colors.black26,
       );
     } else {
       return Container(width: 20);
@@ -296,15 +267,22 @@ class CalendarStripState extends State<CalendarStrip>
 
   leftIconWidget() {
     if (!isOnStartingWeek) {
-      return InkWell(
-        child: widget.leftIcon ??
-            Icon(
-              CupertinoIcons.left_chevron,
-              size: 30,
-              color: nullOrDefault(widget.iconColor, Colors.black),
-            ),
+      return GestureDetector(
+        child: Container(
+          width: 50,
+          height: 72,
+          color: Colors.white, // 底色
+          child: Center(
+            child: widget.leftIcon ??
+                Icon(
+                  CupertinoIcons.left_chevron,
+                  size: 28,
+                  color: nullOrDefault(widget.iconColor, Colors.black),
+                ),
+          ),
+        ),
         onTap: onPrevRow,
-        splashColor: Colors.black26,
+        // splashColor: Colors.black26,
       );
     } else {
       return Container(width: 20);
@@ -314,8 +292,7 @@ class CalendarStripState extends State<CalendarStrip>
   checkOutOfRangeStatus(DateTime date) {
     date = DateTime(date.year, date.month, date.day);
     if (widget.startDate != null && widget.endDate != null) {
-      if (!isDateBefore(date, widget.startDate) &&
-          !isDateAfter(date, widget.endDate)) {
+      if (!isDateBefore(date, widget.startDate) && !isDateAfter(date, widget.endDate)) {
         return false;
       } else {
         return true;
@@ -342,8 +319,7 @@ class CalendarStripState extends State<CalendarStrip>
     List<Widget> currentWeekRow = [];
     for (var eachDay = 0; eachDay < 7; eachDay++) {
       var index = eachDay;
-      currentWeekRow.add(dateTileBuilder(
-          rowStartingDate.add(Duration(days: eachDay)), selectedDate, index));
+      currentWeekRow.add(dateTileBuilder(rowStartingDate.add(Duration(days: eachDay)), selectedDate, index));
     }
     monthLabel = getMonthLabel();
     return Column(children: [
@@ -351,13 +327,8 @@ class CalendarStripState extends State<CalendarStrip>
       Container(
           padding: EdgeInsets.all(0),
           child: GestureDetector(
-            onHorizontalDragEnd: (DragEndDetails details) =>
-                onStripDrag(details),
-            child: Row(children: [
-              leftIconWidget(),
-              Expanded(child: Row(children: currentWeekRow)),
-              rightIconWidget()
-            ]),
+            onHorizontalDragEnd: (DragEndDetails details) => onStripDrag(details),
+            child: Row(children: [leftIconWidget(), Expanded(child: Row(children: currentWeekRow)), rightIconWidget()]),
           ))
     ]);
   }
@@ -368,32 +339,33 @@ class CalendarStripState extends State<CalendarStrip>
     if (widget.dateTileBuilder != null) {
       return Expanded(
         child: SlideFadeTransition(
-          delay: 30 + (30 * rowIndex),
-          id: "${date.day}${date.month}${date.year}",
-          curve: Curves.ease,
-          child: InkWell(
-            customBorder: CircleBorder(),
-            onTap: () => onDateTap(date),
-            child: Container(
-              child: widget.dateTileBuilder(date, selectedDate, rowIndex,
-                  dayName, isDateMarked(date), isDateOutOfRange),
-            ),
-          ),
-        ),
+            delay: 30 + (30 * rowIndex),
+            id: "${date.day}${date.month}${date.year}",
+            curve: Curves.ease,
+            child: GestureDetector(
+              // customBorder: CircleBorder(),
+              onTap: () => onDateTap(date),
+              child: Container(
+                decoration: new BoxDecoration(
+                    // border: new Border.all(color: Color(0xFFFF0000), width: 0.5), // 边色与边宽度
+                    borderRadius: new BorderRadius.circular(20)), // 也可控件一边圆角大小
+
+                child:
+                    widget.dateTileBuilder(date, selectedDate, rowIndex, dayName, isDateMarked(date), isDateOutOfRange),
+              ),
+            )),
       );
     }
 
     bool isSelectedDate = date.compareTo(selectedDate) == 0;
-    var normalStyle = TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w800,
-        color: isDateOutOfRange ? Colors.black26 : Colors.black54);
+    var normalStyle =
+        TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: isDateOutOfRange ? Colors.black26 : Colors.black54);
     return Expanded(
       child: SlideFadeTransition(
         delay: 30 + (30 * rowIndex),
         id: "${date.day}${date.month}${date.year}",
         curve: Curves.ease,
-        child: InkWell(
+        child: GestureDetector(
           onTap: () => onDateTap(date),
           child: Container(
             alignment: Alignment.center,
@@ -411,8 +383,7 @@ class CalendarStripState extends State<CalendarStrip>
                     color: !isSelectedDate ? Colors.black : Colors.white,
                   ),
                 ),
-                Text(date.day.toString(),
-                    style: !isSelectedDate ? normalStyle : selectedDateStyle),
+                Text(date.day.toString(), style: !isSelectedDate ? normalStyle : selectedDateStyle),
               ],
             ),
           ),
@@ -425,9 +396,7 @@ class CalendarStripState extends State<CalendarStrip>
     return Container(
       height: nullOrDefault(widget.containerHeight, 90.0),
       child: buildDateRow(),
-      decoration: widget.containerDecoration != null
-          ? widget.containerDecoration
-          : BoxDecoration(),
+      decoration: widget.containerDecoration != null ? widget.containerDecoration : BoxDecoration(),
     );
   }
 }
@@ -438,15 +407,13 @@ class SlideFadeTransition extends StatefulWidget {
   final String id;
   final Curve curve;
 
-  SlideFadeTransition(
-      {@required this.child, @required this.id, this.delay, this.curve});
+  SlideFadeTransition({@required this.child, @required this.id, this.delay, this.curve});
 
   @override
   SlideFadeTransitionState createState() => SlideFadeTransitionState();
 }
 
-class SlideFadeTransitionState extends State<SlideFadeTransition>
-    with TickerProviderStateMixin {
+class SlideFadeTransitionState extends State<SlideFadeTransition> with TickerProviderStateMixin {
   AnimationController _animController;
   Animation<Offset> _animOffset;
   bool _disposed = false;
@@ -455,14 +422,10 @@ class SlideFadeTransitionState extends State<SlideFadeTransition>
   void initState() {
     super.initState();
 
-    _animController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
-    final _curve = CurvedAnimation(
-        curve: widget.curve != null ? widget.curve : Curves.decelerate,
-        parent: _animController);
-    _animOffset =
-        Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero)
-            .animate(_curve);
+    _animController = AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    final _curve =
+        CurvedAnimation(curve: widget.curve != null ? widget.curve : Curves.decelerate, parent: _animController);
+    _animOffset = Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(_curve);
 
     if (widget.delay == null) {
       if (!_disposed) _animController.forward();

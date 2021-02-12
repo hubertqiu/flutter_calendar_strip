@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_strip/calendar_strip.dart';
 
@@ -7,9 +8,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return CupertinoApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -24,7 +24,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime startDate = DateTime.now().subtract(Duration(days: 2));
+  DateTime startDate = DateTime.now().subtract(Duration(days: 365));
   DateTime endDate = DateTime.now().add(Duration(days: 2));
   DateTime selectedDate = DateTime.now().subtract(Duration(days: 0));
   List<DateTime> markedDates = [
@@ -77,19 +77,15 @@ class _MyHomePageState extends State<MyHomePage> {
     ]);
   }
 
-  dateTileBuilder(
-      date, selectedDate, rowIndex, dayName, isDateMarked, isDateOutOfRange) {
+  dateTileBuilder(date, selectedDate, rowIndex, dayName, isDateMarked, isDateOutOfRange) {
     bool isSelectedDate = date.compareTo(selectedDate) == 0;
     Color fontColor = isDateOutOfRange ? Colors.black26 : Colors.black87;
-    TextStyle normalStyle =
-        TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fontColor);
-    TextStyle selectedStyle = TextStyle(
-        fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87);
+    TextStyle normalStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fontColor);
+    TextStyle selectedStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87);
     TextStyle dayNameStyle = TextStyle(fontSize: 14.5, color: fontColor);
     List<Widget> _children = [
       Text(dayName, style: dayNameStyle),
-      Text(date.day.toString(),
-          style: !isSelectedDate ? normalStyle : selectedStyle),
+      Text(date.day.toString(), style: !isSelectedDate ? normalStyle : selectedStyle),
     ];
 
     if (isDateMarked == true) {
@@ -112,24 +108,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(
-          child: CalendarStrip(
-        startDate: startDate,
-        endDate: endDate,
-        selectedDate: selectedDate,
-        onDateSelected: onSelect,
-        onWeekSelected: onWeekSelect,
-        dateTileBuilder: dateTileBuilder,
-        iconColor: Colors.black87,
-        monthNameWidget: _monthNameWidget,
-        markedDates: markedDates,
-        containerDecoration: BoxDecoration(color: Colors.black12),
-        addSwipeGesture: true,
-      )),
-    );
+    return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text("Demo"),
+        ),
+        child: SafeArea(
+          child: Container(
+              child: CalendarStrip(
+            startDate: startDate,
+            containerHeight: 140,
+            endDate: endDate,
+            selectedDate: selectedDate,
+            onDateSelected: onSelect,
+            onWeekSelected: onWeekSelect,
+            dateTileBuilder: dateTileBuilder,
+            iconColor: Colors.black87,
+            monthNameWidget: _monthNameWidget,
+            markedDates: markedDates,
+            containerDecoration: BoxDecoration(color: Colors.black12),
+            addSwipeGesture: true,
+          )),
+        ));
   }
 }
